@@ -4,14 +4,13 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread;
 use std::thread::JoinHandle;
 use std::pin::Pin;
-use std::task::Poll;
+use std::task::{Context, Poll};
 
 use crate::error;
 
-use tokio_stream::Stream;
-use futures::{Sink, Stream as FuturesStream, Async};
-use futures::sync::mpsc;
-use futures::sync::mpsc::UnboundedReceiver;
+use futures::channel::mpsc;
+use futures::channel::mpsc::UnboundedReceiver;
+use futures::Stream as FuturesStream;
 use termion::event::Event;
 use termion::input::TermRead;
 
@@ -28,7 +27,6 @@ impl AsyncKeyInput {
         let closed_handle = closed.clone();
 
         let handle: JoinHandle<error::Result<()>> = thread::spawn(move || {
-            let mut tx = &tx;
             let stdin = io::stdin();
             let input = stdin.events();
 
@@ -36,14 +34,11 @@ impl AsyncKeyInput {
                 match res_key {
                     Ok(key) => {
                         if let Err(e) = tx.unbounded_send(key) {
-                            return Err(e.into())
+                            return Err(error::Error::from(e));
                         }
                     }
                     Err(e) => {
                         println!("{:?}", e);
-                        if let Err(e) = tx.close() {
-                            return Err(e.into())
-                        }
                         closed_handle.store(true, Ordering::SeqCst);
                         break;
                     }
@@ -54,17 +49,17 @@ impl AsyncKeyInput {
         });
 
         AsyncKeyInput {
-            rx: rx,
+            rx,
             closed,
             handle: Some(handle),
         }
     }
 }
 
-impl Stream for AsyncKeyInput {
+impl FuturesStream for AsyncKeyInput {
     type Item = Event;
 
-    fn poll_next(mut self: Pin<&mut Self>, _: &mut std::task::Context<'_>) -> Poll<Option<Self::Item>> {
+    fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         if self.closed.load(Ordering::SeqCst) {
             match self.handle.take().expect("AsyncKeyInput was missing its thread handle.").join() {
                 Ok(Ok(())) => Poll::Ready(None),
@@ -72,14 +67,10 @@ impl Stream for AsyncKeyInput {
                 Err(e) => panic!("Error: {e:?}"),
             }
         } else {
-            match self.rx.poll().map_err(|()| unreachable!()) {
-                Ok(item) => {
-                    match item {
-                        Async::Ready(item) => Poll::Ready(item),
-                        Async::NotReady => Poll::Pending,
-                    }
-                }
-                Err(e) => panic!("Error: {e:?}"),
+            match Pin::new(&mut self.rx).poll_next(cx) {
+                Poll::Ready(Some(item)) => Poll::Ready(Some(item)),
+                Poll::Ready(None) => Poll::Ready(None),
+                Poll::Pending => Poll::Pending,
             }
         }
     }

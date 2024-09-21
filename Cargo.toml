@@ -16,7 +16,7 @@ travis-ci = { repository = "aatxe/alectro" }
 
 [dependencies]
 failure = "0.1"
-futures = "0.1"
+futures = "0.3"
 irc = "1.0.0"
 termion = "1.4"
 tokio = {version = "1" , features = ["full"] }

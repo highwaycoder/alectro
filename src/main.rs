@@ -15,7 +15,7 @@ async fn main() {
     let ui = UI::new().unwrap();
 
     let default_cfg = Config {
-        nickname: Some(format!("aatxe")),
+        nickname: Some(format!("highwaycoder")),
         server: Some(format!("chat.freenode.net")),
         use_tls: Some(true),
         .. Default::default()
@@ -41,11 +41,11 @@ async fn main() {
     let irc_controller = IrcController::new(ui.clone());
 
     let input_controller = InputController::new(irc_client, ui);
+    let mut input_rx = AsyncKeyInput::new();
+    input_controller.ui().add_event_to_current_chat_buf(
+        Event::notice(None, "LOG", "spawned input handler thread")
+    ).expect("Could not add log message to current chat buffer");
     tokio::spawn(async move {
-        let mut input_rx = AsyncKeyInput::new();
-        input_controller.ui().add_event_to_current_chat_buf(
-            Event::notice(None, "LOG", "spawned input handler thread")
-        ).expect("Could not add log message to current chat buffer");
         while let Some(event) = input_rx.next().await {
             input_controller.handle_event(event).expect("Could not handle event");
             input_controller.ui().draw_all().expect("Could not draw UI");

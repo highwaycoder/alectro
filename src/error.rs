@@ -1,6 +1,6 @@
 use std::io::Error as IoError;
 
-use futures::sync::mpsc::SendError;
+use futures::channel::mpsc::TrySendError;
 use irc::error::Error as IrcError;
 use termion::event::Event;
 
@@ -12,7 +12,7 @@ pub enum Error {
     Io(#[cause] IoError),
 
     #[fail(display = "failed to send keypress event")]
-    SendKey(#[cause] SendError<Event>),
+    SendKey(#[cause] TrySendError<Event>),
 
     #[fail(display = "irc error")]
     Irc(#[cause] IrcError),
@@ -47,8 +47,8 @@ impl From<IoError> for Error {
     }
 }
 
-impl From<SendError<Event>> for Error {
-    fn from(e: SendError<Event>) -> Error {
+impl From<TrySendError<Event>> for Error {
+    fn from(e: TrySendError<Event>) -> Error {
         Error::SendKey(e)
     }
 }
