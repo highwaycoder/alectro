@@ -4,7 +4,7 @@ use std::io::{Stdout, Write};
 use termion;
 use termion::cursor;
 use termion::raw::{IntoRawMode, RawTerminal};
-use termion::screen::AlternateScreen;
+use termion::screen::{AlternateScreen, IntoAlternateScreen};
 
 use crate::error;
 use crate::view::{Bound, Buffer, Color, Modifier, Style, Widget};
@@ -23,7 +23,7 @@ impl Terminal {
         Ok(Terminal {
             buf_index: 0,
             buffers: [Buffer::empty(term_bound), Buffer::empty(term_bound)],
-            stdout: AlternateScreen::from(io::stdout().into_raw_mode()?),
+            stdout: io::stdout().into_raw_mode()?.into_alternate_screen()?,
         })
     }
 
