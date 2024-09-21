@@ -1,7 +1,7 @@
 use std::io::Error as IoError;
 
 use futures::sync::mpsc::SendError;
-use irc::error::IrcError;
+use irc::error::Error as IrcError;
 use termion::event::Event;
 
 pub type Result<T> = ::std::result::Result<T, Error>;
@@ -63,7 +63,7 @@ impl From<Error> for IrcError {
     fn from(error: Error) -> IrcError {
         match error {
             Error::Irc(e) => e,
-            _ => IrcError::Custom { inner: error.into() },
+            _ => panic!("Cannot convert non-IRC error to IRC error"),
         }
     }
 }

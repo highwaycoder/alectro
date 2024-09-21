@@ -1,17 +1,17 @@
 use irc::client::prelude::*;
 use termion::event::{Event, Key};
 
-use error;
-use model;
-use view::UI;
+use crate::error;
+use crate::model;
+use crate::view::UI;
 
 pub struct InputController {
-    client: IrcClient,
+    client: Client,
     ui: UI,
 }
 
 impl InputController {
-    pub fn new(client: IrcClient, ui: UI) -> InputController {
+    pub fn new(client: Client, ui: UI) -> InputController {
         InputController {
             client: client,
             ui: ui,

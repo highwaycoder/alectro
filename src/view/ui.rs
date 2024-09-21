@@ -5,10 +5,10 @@ use std::sync::{Arc, Mutex, MutexGuard};
 
 use irc::proto::ChannelExt;
 
-use error;
-use model::Event;
-use view::Terminal;
-use view::widget::{ChatBuf, Input, TabLine};
+use crate::error;
+use crate::model::Event;
+use crate::view::Terminal;
+use crate::view::widget::{ChatBuf, Input, TabLine};
 
 #[derive(Clone)]
 pub struct UI {

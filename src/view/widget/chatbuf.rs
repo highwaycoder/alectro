@@ -3,9 +3,9 @@ use std::str::Chars;
 use unicode_segmentation::UnicodeSegmentation;
 use unicode_width::UnicodeWidthStr;
 
-use model;
-use model::Event;
-use view::{Buffer, Color, Modifier, Style, Widget};
+use crate::model;
+use crate::model::Event;
+use crate::view::{Buffer, Color, Modifier, Style, Widget};
 
 #[derive(Clone)]
 pub struct ChatBuf {

@@ -3,25 +3,25 @@ extern crate futures;
 extern crate irc;
 extern crate termion;
 
-use std::env;
-
+use tokio_stream::StreamExt;
 use alectro::controller::{InputController, IrcController};
 use alectro::input::AsyncKeyInput;
 use alectro::view::UI;
+use alectro::model::Event;
 use irc::client::prelude::*;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let ui = UI::new().unwrap();
-    let mut reactor = IrcReactor::new().unwrap();
 
     let default_cfg = Config {
         nickname: Some(format!("aatxe")),
-        server: Some(format!("irc.mozilla.org")),
-        use_ssl: Some(true),
+        server: Some(format!("chat.freenode.net")),
+        use_tls: Some(true),
         .. Default::default()
     };
 
-    let cfg = match env::home_dir() {
+    let cfg = match dirs::home_dir() {
         Some(mut path) => {
             path.push(".alectro");
             path.set_extension("toml");
@@ -30,27 +30,31 @@ fn main() {
         None => default_cfg,
     };
 
-    for chan in &cfg.channels() {
+    for chan in cfg.channels() {
         ui.new_chat_buf(chan).unwrap();
     }
 
-    let irc_client = reactor.prepare_client_and_connect(&cfg).unwrap();
+    let mut irc_client = Client::from_config(cfg).await.expect("Could not create IRC client");
     irc_client.identify().unwrap();
+    let mut stream = irc_client.stream().expect("Could not get stream from client");
 
     let irc_controller = IrcController::new(ui.clone());
-    reactor.register_client_with_handler(irc_client.clone(), move |_, message| {
-        irc_controller.handle_message(message)?;
-        irc_controller.ui().draw_all()?;
-        Ok(())
-    });
 
     let input_controller = InputController::new(irc_client, ui);
-    let input_rx = AsyncKeyInput::new();
-    reactor.register_future(input_rx.for_each(move |event| {
-        input_controller.handle_event(event)?;
-        input_controller.ui().draw_all()?;
-        Ok(())
-    }).map_err(|e| e.into()));
+    tokio::spawn(async move {
+        let mut input_rx = AsyncKeyInput::new();
+        input_controller.ui().add_event_to_current_chat_buf(
+            Event::notice(None, "LOG", "spawned input handler thread")
+        ).expect("Could not add log message to current chat buffer");
+        while let Some(event) = input_rx.next().await {
+            input_controller.handle_event(event).expect("Could not handle event");
+            input_controller.ui().draw_all().expect("Could not draw UI");
+        }
+    });
 
-    reactor.run().unwrap();
+    while let Some(message) = stream.next().await.transpose().expect("Could not receive message") {
+        irc_controller.handle_message(message).expect("Could not handle message");
+        irc_controller.ui().draw_all().expect("Could not draw UI");
+    }
+
 }

@@ -187,7 +187,7 @@ impl Style {
 
     pub fn modifier_with_toggle(mut self, modifier: Modifier) -> Style {
         if self.modifier == modifier {
-            if let Some(inverted) = modifier.inverted() {
+            if let Some(_inverted) = modifier.inverted() {
                 // FIXME: We want to use inverted here, but most terminals don't support it. To get
                 // around this, we will need to add support in the renderer for translating inverted
                 // modifiers into a reset followed by the restoration of any additional modifiers.

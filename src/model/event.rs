@@ -1,5 +1,5 @@
-use utils;
-use view::{Color, Style};
+use crate::utils;
+use crate::view::{Color, Style};
 
 pub enum Event {
     /// sender, target, message

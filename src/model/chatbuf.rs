@@ -1,6 +1,6 @@
 use std::slice::Iter;
 
-use model::Event;
+use crate::model::Event;
 
 pub struct ChatBuf {
     events: Vec<Event>,

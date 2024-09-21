@@ -1,4 +1,4 @@
-use view::{Buffer};
+use crate::view::{Buffer};
 
 mod chatbuf;
 mod input;

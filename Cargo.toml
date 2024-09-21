@@ -9,6 +9,7 @@ categories = ["command-line-interface", "command-line-utilities"]
 documentation = "https://docs.rs/alectro/"
 repository = "https://github.com/aatxe/alectro"
 readme = "README.md"
+edition = '2021'
 
 [badges]
 travis-ci = { repository = "aatxe/alectro" }
@@ -16,11 +17,13 @@ travis-ci = { repository = "aatxe/alectro" }
 [dependencies]
 failure = "0.1"
 futures = "0.1"
-irc = { git = "https://github.com/aatxe/irc", branch = "0.14", features = ["ctcp", "toml"] }
+irc = "1.0.0"
 termion = "1.4"
-tokio-core = "0.1"
+tokio = {version = "1" , features = ["full"] }
+tokio-stream = { version = "0.1.16" }
 unicode-segmentation = "0.1"
 unicode-width = "0.1"
+dirs = "5.0.1"
 
 [[bin]]
 name = "alectro"

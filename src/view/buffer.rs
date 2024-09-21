@@ -3,7 +3,7 @@ use std::collections::VecDeque;
 use unicode_segmentation::UnicodeSegmentation;
 use unicode_width::UnicodeWidthStr;
 
-use view::{Bound, Color, Modifier, Style};
+use crate::view::{Bound, Color, Modifier, Style};
 
 /// A single cell in the terminal buffer.
 #[derive(Clone, PartialEq, Eq)]

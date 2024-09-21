@@ -1,5 +1,5 @@
-use error;
-use view::{Bound, Buffer, Color, Style, Widget};
+use crate::error;
+use crate::view::{Bound, Buffer, Color, Style, Widget};
 
 const EXTRA_SIZE: u16 = 3;
 
@@ -110,7 +110,7 @@ impl TabLine {
 
     fn highlight_precursor(&mut self) {
         if self.curr != 0 {
-            let mut tab = &mut self.tabs[self.curr - 1];
+            let tab = &mut self.tabs[self.curr - 1];
             tab.before_highlighted = true;
             tab.redraw();
             tab.draw(&mut self.buf);

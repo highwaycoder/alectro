@@ -3,8 +3,8 @@ use std::io::Write;
 
 use termion::cursor;
 
-use error;
-use view::{Bound, Buffer, Widget};
+use crate::error;
+use crate::view::{Bound, Buffer, Widget};
 
 pub struct Input {
     buf: Buffer,

@@ -6,8 +6,8 @@ use termion::cursor;
 use termion::raw::{IntoRawMode, RawTerminal};
 use termion::screen::AlternateScreen;
 
-use error;
-use view::{Bound, Buffer, Color, Modifier, Style, Widget};
+use crate::error;
+use crate::view::{Bound, Buffer, Color, Modifier, Style, Widget};
 
 pub struct Terminal {
     buf_index: usize,
