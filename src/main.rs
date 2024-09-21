@@ -15,7 +15,7 @@ async fn main() {
     let ui = UI::new().unwrap();
 
     let default_cfg = Config {
-        nickname: Some(format!("highwaycoder")),
+        nickname: Some(format!("aatxe")),
         server: Some(format!("chat.freenode.net")),
         use_tls: Some(true),
         .. Default::default()
